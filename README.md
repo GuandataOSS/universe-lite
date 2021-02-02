@@ -1,6 +1,18 @@
 ﻿universe-lite （小宇宙）
 
 
+# 下载地址
+
+<https://github.com/GuandataOSS/universe-lite/releases>
+
+其中 0.8.0，如果需要使用 python任务或者python插件任务，需要python中安装对应的 duckdb 0.2.3 版本
+
+文件：
+
+-   universe-lite-0.8.0.jar: works on Linux, Windows & Mac, depends on JDK 8 or above
+-   universe-lite-0.8.0: native image on 64bit linux, don't depend on JDK
+
+
 # 项目背景
 
 目前数据处理ETL的一个趋势就是从 ETL （Extract Transform Load) 转为 ELT (Extract Load Transform).
