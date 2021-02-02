@@ -1,0 +1,6 @@
+.DS_Store
+
+# Intellij Idea files
+.idea/
+*.iml
+
