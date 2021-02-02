@@ -65,7 +65,7 @@ stage = [
    {
      name=data_gen1
      type=sql
-     sql="select '"${vars->dt}"' as dt"
+     sql="select '" ${dt} "' as dt"
    }
    {
      type=stdout
