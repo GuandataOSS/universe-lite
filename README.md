@@ -5,7 +5,7 @@
 
 <https://github.com/GuandataOSS/universe-lite/releases>
 
-其中 0.8.0，如果需要使用 python任务或者python插件任务，需要python中安装对应的 duckdb 0.2.3 版本
+其中 0.8.0，如果需要使用 python任务或者python插件任务，需要python中安装对应的 duckdb 0.2.4 版本
 
 文件：
 
@@ -38,7 +38,7 @@ universe-lite本身的代码还在内部完善过程中，后面会再决定何�
 
 # 版本匹配
 
-目前0.8.x release 将依赖于 duckdb 0.2.3, duckdb 后续版本发布后，universe-lite 将做相应更新。 （主要是因为 python插件中，需要用 pip 安装官方的duckdb，这时jvm中内嵌的duckdb版本需要和python中的一致）
+目前0.8.x release 将依赖于 duckdb 0.2.4, duckdb 后续版本发布后，universe-lite 将做相应更新。 （主要是因为 python插件中，需要用 pip 安装官方的duckdb，这时jvm中内嵌的duckdb版本需要和python中的一致）
 
 
 # 核心概念
