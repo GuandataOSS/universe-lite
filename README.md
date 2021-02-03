@@ -117,7 +117,7 @@ sbt universal:packageBin
 ```
 
 
-# 支持的任务类型
+# 支持的原子任务类型
 
 
 ## jdbc
@@ -554,6 +554,74 @@ stage = [
 
 ## python plugin
 
+使用“python插件”前，请确保系统能执行普通的 “python”任务。
+
+可以先git clone <https://github.com/GuandataOSS/universe-lite-python-plugins> 项目， 比如: 放到 ~/universe-lite-python-plugins 目录下， 设置如下环境变量：
+
+```sh
+export UL_PYTHON_PLUGIN_DIR=~/universe-lite-python-plugins
+```
+
+| name          | type   | required | default        | comments                          |
+|------------- |------ |-------- |-------------- |--------------------------------- |
+| type          | string | true     | python\_plugin | 决定了是python\_plugin类型任务    |
+| library\_name | string | true     |                | 在python插件根目录下的子目录名    |
+| plugin\_name  | string | true     |                | 具体插件名，需要和python脚本中的入口函数名一致 |
+| param         | object | true     |                | 根据不同的插件需要的参数不同，根据插件本身的定义填写 |
+| input         | list   | false    |                | 要处理的 input                    |
+| output        | list   | false    |                | 输出的个数，比如：  ["output1", "output2"] |
+
+比如： 我想使用 guandata\_plugin 插件库中的 “upload\_bi\_dataset” 插件来上传数据到Guandata BI服务器，那我可以先到其插件的参数定义需求如下： <https://github.com/GuandataOSS/universe-lite-python-plugins/blob/main/guandata_plugin/library.conf>
+
+```yaml
+plugin {
+   upload_bi_dataset {
+       url = "https://app.guandata.com"
+       url=${?GUANDATA_BI_URL}
+       domain=${?GUANDATA_BI_DOMAIN}
+       email=${?GUANDATA_BI_EMAIL}
+       # note password need to encode in base64
+       password=${?GUANDATA_BI_PASSWORD}
+
+       # table_name 或者 ds_id 至少设置一个
+       table_name='uploaded dataset'
+
+       # when replace is true, it will overwrite existing data in that table!
+       replace=false
+   }
+}
+```
+
+我们可以使用时把这些参数设置到 任务conf 文件中，也可以设置为环境变量（对于机密信息，建议放到环境变量中）
+
+那我们可以编写如下的任务文件来上传数据
+
+```yaml
+
+stage = [
+  {
+     name=input1
+     type=sql
+     sql="""
+     select 1 as a, 2 as b
+     """
+  }
+
+  {
+     name=upload_to_bi
+     type=python_plugin
+     library_name=guandata_plugin
+     plugin_name=upload_bi_dataset
+     param {
+       url = "https://demo.guandata.com"
+       table_name="my test upload data"
+       replace=true
+     }
+     input=[input1]
+  }
+]
+```
+
 
 # 支持参数
 
@@ -583,6 +651,148 @@ stage =[
 ```
 
 
+# 复合任务类型： 子流程  (sub\_stage)
+
+
+## 简单子流程 (sub\_stage)
+
+```yaml
+stage = [
+   {
+     name=sample
+     type = sql
+     sql = "select 1, 2, 3"
+   }
+   {
+     name=sub_stage1
+     type=sub_stage
+     sub_stage = {
+         stage = [
+           {
+             name=add_col
+             type=sql
+             sql="select *, 4 as new_col from "  ${?SCHEMA_PREFIX}"input1"
+           }
+           {
+             name=do_union
+             type=sql
+             sql="select * from " ${?SCHEMA_PREFIX}"add_col union all select * from " ${?SCHEMA_PREFIX}"add_col"
+           }
+         ]
+     }
+     input=sample
+     output=[do_union]
+   }
+   {
+    type=stdout
+    input=sub_stage1
+  }
+]
+
+```
+
+请注意： sub\_stage 节点中又可以嵌入其它 stage
+
+输出为：
+
+| 1 | 2 | 3 | new\_col |
+|--- |--- |--- |-------- |
+| 1 | 2 | 3 | 4        |
+| 1 | 2 | 3 | 4        |
+
+
+## 将子流程放入到不同文件中
+
+接上面例子，对于子流程(sub\_stage)，我们可以把其放入到其它文件中，方便组装和抽象不同的子逻辑
+
+file sub\_stage1.conf
+
+```yaml
+stage = [
+  {
+    name=add_col
+    type=sql
+    sql="select *, 4 as new_col from "  ${?SCHEMA_PREFIX}"input1"
+  }
+  {
+    name=do_union
+    type=sql
+    sql="select * from " ${?SCHEMA_PREFIX}"add_col union all select * from " ${?SCHEMA_PREFIX}"add_col"
+  }
+]
+```
+
+在主任务文件 main\_stage.conf 中
+
+```yaml
+stage = [
+   {
+     name=sample
+     type = sql
+     sql = "select 1, 2, 3"
+   }
+   {
+     name=sub_stage1
+     type=sub_stage
+     sub_stage = { include "sub_stage1.conf" }
+     input=sample
+     output=[do_union]
+   }
+   {
+    type=stdout
+    input=sub_stage1
+  }
+]
+```
+
+
+## 支持循环的子流程  (sub\_stage)
+
+sub\_stage 支持根据某个前置节点的输出来做循环，其循环次数为该前置节点的总行数，并且该前置节点的每行数据将作为 “参数” 传入子流程
+
+```yaml
+stage = [
+  {
+     name=index
+     type=sql
+     sql="select range as current_index from range(0, 3)"
+  },
+  {
+     name=sub_stage1
+     type=sub_stage
+     loop_input=index
+     sub_stage = {
+       stage=[
+         {
+            name=sql1
+            type=sql
+            sql = "select " ${current_index} " as idx"
+         }
+         {
+            type=stdout
+            input=sql1
+         }
+       ]
+     }
+  }
+]
+```
+
+子流程将被执行3次，输出为：
+
+| idx |
+|--- |
+| 0   |
+
+| idx |
+|--- |
+| 1   |
+
+| idx |
+|--- |
+| 2   |
+
+
 # 怎么跳过某些节点
 
 有时在排查脚本时，可能会临时暂停一些节点的执行，这个时候不用完全注释掉这个节点的所有行，而可以设置 skip = true, 别忘记同样skip掉其它依赖这个节点的节点
@@ -597,6 +807,20 @@ stage = [
   }
 ]
 ```
+
+
+# 致谢
+
+universe-lite 使用或参考了很多开源的软件库， thanks to them！
+
+| project                   | home url                                               | license            | license url                                                             |
+|------------------------- |------------------------------------------------------ |------------------ |----------------------------------------------------------------------- |
+| duckdb                    | <https://github.com/cwida/duckdb>                      | MIT License        | <https://github.com/cwida/duckdb/blob/master/LICENSE>                   |
+| config                    | <https://github.com/lightbend/config>                  | Apache-2.0 License | <https://github.com/lightbend/config/blob/master/LICENSE-2.0.txt>       |
+| Apache Parquet            | <https://github.com/apache/parquet-mr>                 | Apache-2.0 License | <https://github.com/apache/parquet-mr/blob/master/LICENSE>              |
+| Apache DolphinScheduler   | <https://github.com/apache/incubator-dolphinscheduler> | Apache-2.0 License | <https://github.com/apache/incubator-dolphinscheduler/blob/dev/LICENSE> |
+| waterdrop                 | <https://github.com/InterestingLab/waterdrop>          | Apache-2.0 License | <https://github.com/InterestingLab/waterdrop/blob/master/LICENSE>       |
+| StreamSets Data Collector | <https://github.com/streamsets/datacollector>          | Apache-2.0 License | <https://github.com/streamsets/datacollector/blob/master/LICENSE.txt>   |
 
 
 # 已知问题
