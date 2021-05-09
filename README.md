@@ -5,12 +5,12 @@
 
 <https://github.com/GuandataOSS/universe-lite/releases>
 
-其中 0.9.0，如果需要使用 python任务或者python插件任务，需要python中安装对应的 duckdb 0.2.5 版本
+其中 0.10.0，如果需要使用 python任务或者python插件任务，需要python中安装对应的 duckdb 0.2.6 版本
 
 文件：
 
--   universe-lite-0.9.0.jar: works on Linux, Windows & Mac, depends on JDK 8 or above
--   universe-lite-0.9.0: native image on 64bit linux, don't depend on JDK
+-   universe-lite-0.10.0.jar: works on Linux, Windows & Mac, depends on JDK 8 or above
+-   universe-lite-0.10.0: native image on 64bit linux, don't depend on JDK
 
 
 # 项目背景
@@ -132,12 +132,12 @@ jdbc是最常见的操作，类似于开发平台的 “sql节点”的“获取
 | user            | string               | false    |         |                                                                                                  |
 | password        | string               | false    |         |                                                                                                  |
 | pre\_statement  | StringList or string | false    | []      |                                                                                                  |
-| query           | string               | ?        |         | 当作为“获取数据”节点时，必须，而且是SELECT SQL                                                   |
+| query           | string               | ?        |         | 当作为“获取数据”节点时，必须，而且是SELECT SQL                                                 |
 | jdbc.fetchsize  | int                  | false    |         | 当作为“获取数据”节点时，可选。一般为 int 类型，但是对于MySQL等，支持特殊字符串 Integer.MIN\_VALUE |
 | jdbc.autocommit | boolean              | false    | true    | 是否把所有的statements或query都放在一个transaction中，比如对于Postgresql如果我们要使得 fetchsize生效，比如设置 autocommit 为false |
-| statement       | string               | ?        |         | 当作为“插入数据”节点时，必须，一般为非查询的 CREATE / UPDATE/ INSERT 等                          |
-| jdbc.batchsize  | int                  | false    | 1000    | 当作为“插入数据”节点时，如果有 input，则会转为每个batch插入目标表的行数                          |
-| input           | StringList or string | false    |         | 只有当作为“插入数据”节点，并且需要把input 表的数据一行一行进行bind并插入目标时才需要             |
+| statement       | string               | ?        |         | 当作为“插入数据”节点时，必须，一般为非查询的 CREATE / UPDATE/ INSERT 等                        |
+| jdbc.batchsize  | int                  | false    | 1000    | 当作为“插入数据”节点时，如果有 input，则会转为每个batch插入目标表的行数                        |
+| input           | StringList or string | false    |         | 只有当作为“插入数据”节点，并且需要把input 表的数据一行一行进行bind并插入目标时才需要           |
 
 具体的例子请参考 config/mysql\_task\_status\_to\_postgresql.conf.template 样例， 该例子中把 mysql 中的一张表，批量插入到 postgresql中
 
