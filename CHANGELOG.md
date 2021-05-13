@@ -1,7 +1,32 @@
 ﻿# CHANGELOG
 
 
+## 0.10.1 (release at 2021-05-13)
+
+0.10.x works with duckdb 0.2.6
+
+changes:
+
+-   fix Java Plugin issue: check error when the input count is variable
+-   fix some class loader issue for Java Plugins
+-   also print column's type info in "stdout" stage type
+-   upgrade commons-compress library to newer version to solve class conflict in Java Plugin when using Apache POI
+-   add new stage type "spark\_shell", to integrate Spark SQL into workflow (Only local mode spark is supported currently)
+
+
+## 0.10.0 (release at 2021-05-09)
+
+0.10.x works with duckdb 0.2.6
+
+
+## 0.9.0 (release at 2021-03-29)
+
+0.9.x works with duckdb 0.2.5
+
+
 ## 0.8.1 (release at 2021-02-24)
+
+0.8.1 works with duckdb 0.2.4
 
 -   add experimental support for StringTemplate4 (st), to easy creation of string parameter values
 -   "file" task support a new param "content", to write string content directly into file

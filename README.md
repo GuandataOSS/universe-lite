@@ -5,12 +5,12 @@
 
 <https://github.com/GuandataOSS/universe-lite/releases>
 
-其中 0.10.0，如果需要使用 python任务或者python插件任务，需要python中安装对应的 duckdb 0.2.6 版本
+其中 0.10.x，如果需要使用 python任务或者python插件任务，需要python中安装对应的 duckdb 0.2.6 版本
 
 文件：
 
--   universe-lite-0.10.0.jar: works on Linux, Windows & Mac, depends on JDK 8 or above
--   universe-lite-0.10.0: native image on 64bit linux, don't depend on JDK
+-   universe-lite-0.10.1.jar: works on Linux, Windows & Mac, depends on JDK 8 or above
+-   universe-lite-0.10.1: native image on 64bit linux, don't depend on JDK
 
 
 # 项目背景
