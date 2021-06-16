@@ -1,6 +1,15 @@
 ﻿# CHANGELOG
 
 
+## 0.11.0 (release at 2021-06-16)
+
+0.11.x works with duckdb 0.2.7
+
+changes:
+
+-   fix a "path cannot recognized" bug on Windows
+
+
 ## 0.10.1 (release at 2021-05-13)
 
 0.10.x works with duckdb 0.2.6
