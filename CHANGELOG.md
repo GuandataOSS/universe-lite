@@ -1,6 +1,18 @@
 ﻿# CHANGELOG
 
 
+## 0.13.0 (release at 2021-09-10)
+
+0.13.x works with duckdb 0.2.9
+
+changes:
+
+-   add new command option "&#x2013;useReadParquetInPython" to indicate whether to use pandas.read\_parquet() for python tasks, default false (use duckdb to read input data in python). Note: if set to true, need to install pyarrow & fastparquet library in python
+
+
+## 0.12.x is skipped due to duckdb 0.2.8 not pushed to maven
+
+
 ## 0.11.0 (release at 2021-06-16)
 
 0.11.x works with duckdb 0.2.7
