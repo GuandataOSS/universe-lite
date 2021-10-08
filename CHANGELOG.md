@@ -1,6 +1,11 @@
 ﻿# CHANGELOG
 
 
+## 0.14.0 (release at 2021-10-08)
+
+0.14.x works with duckdb 0.3.0
+
+
 ## 0.13.0 (release at 2021-09-10)
 
 0.13.x works with duckdb 0.2.9
